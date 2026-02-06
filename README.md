@@ -1,123 +1,144 @@
-# Phase 3 – Todo AI Chatbot 🤖📝
+# Phase IV – Local Kubernetes Deployment  
+**Cloud-Native Todo AI Chatbot on Minikube**
 
-## 📌 Project Overview
+![Phase IV Thumbnail](https://via.placeholder.com/1200x630/1e293b/60a5fa?text=Phase+IV+-+Kubernetes+Local+Deployment)  
+*(Replace with actual screenshot or generated thumbnail from demo video)*
 
-This repository represents **Phase 3** of the **Todo Evolution Project**, developed as part of a hackathon. Each phase of this project is maintained in a **separate GitHub repository** to clearly demonstrate architectural and feature-wise evolution for judges and reviewers.
+## Project Overview
 
-Phase 3 focuses on transforming a traditional Todo application into an **AI-powered conversational assistant**, allowing users to interact with their tasks using natural language.
+Phase IV transforms the **Phase III Todo AI Chatbot** (natural language task manager using MCP + OpenAI Agents SDK) into a **cloud-native application** running locally on Kubernetes.
 
----
+**Key Goals:**
+- Containerize frontend (Next.js) and backend (FastAPI + MCP + Agent)
+- Use **Docker Desktop + Gordon** (AI-assisted Docker) for building images
+- Deploy using **Helm charts** (generated or written with AI help)
+- Run a full local Kubernetes cluster with **Minikube**
+- Leverage AI DevOps tools: **kubectl-ai** and **kagent** for intelligent operations
+- Keep everything **stateless**, **reproducible**, and **easy to tear down**
 
-## 🧠 Evolution Context
+This phase demonstrates modern cloud-native development practices — even in a local environment.
 
-The project is intentionally split into phases:
+## Technology Stack – Phase IV
 
-* **Phase 1** – Core Todo functionality (CRUD)
-* **Phase 2** – AI-powered task suggestions and smart enhancements
-* **Phase 3** – 🟢 **AI Chatbot Interface for Todo Management (this repository)**
-* Phase 4 – (Planned)
-* Phase 5 – (Planned)
+| Layer                | Technology                              | Purpose                                      |
+|----------------------|-----------------------------------------|----------------------------------------------|
+| Container Runtime    | Docker Desktop + Gordon (AI agent)      | Build & manage images intelligently          |
+| Local Kubernetes     | Minikube (driver: docker)               | Single-node Kubernetes cluster               |
+| Packaging            | Helm v3/v4                              | Package and deploy application as charts     |
+| AI Kubernetes Ops    | kubectl-ai, kagent                      | Natural language → Kubernetes commands       |
+| Application          | Phase III Todo Chatbot                  | Frontend (Next.js + ChatKit), Backend (FastAPI) |
+| Database             | Neon PostgreSQL (or local Postgres)     | Persistent storage (via secrets/env)         |
+| Authentication       | Better Auth                             | User sessions & email-based login            |
 
-Each phase has its **own repository** to ensure:
+## Prerequisites
 
-* Clean commit history
-* Clear evaluation per phase
-* Easy comparison for judges
+**Operating System:** Windows 10/11 with **WSL2 + Ubuntu** (recommended)
 
----
+You must have:
 
-## 🚀 What’s New in Phase 3
+- Windows 10/11 (with WSL2 enabled)
+- Docker Desktop 4.53+ (with **Gordon** enabled if available in your region)
+- WSL2 Ubuntu distro
+- Git
+- curl, wget, tar, unzip
 
-### ✨ Key Features
+## Quick Installation (WSL Ubuntu)
 
-* 💬 AI-powered chat interface
-* 🧾 Natural language Todo creation
-* 🔍 Query tasks via conversation
-* 🤖 Context-aware responses
-* ⚡ Built on top of Phase 2 logic
-
----
-
-## 🛠 Tech Stack
-
-* **Backend:** FastAPI
-* **AI / LLM:** OpenAI / OpenRouter compatible models
-* **Language:** Python
-* **Containerization:** Docker
-* **Version Control:** Git & GitHub
-
----
-
-## 📂 Project Structure
-
-```text
-phase-3-Todo-AI-Chatbot/
-│── app/
-│   ├── main.py
-│   ├── routes/
-│   ├── services/
-│   └── schemas/
-│── Dockerfile
-│── docker-compose.yml
-│── requirements.txt
-│── README.md
-```
-
----
-
-## ▶️ How to Run Locally
-
-### 1️⃣ Clone Repository
+Run these commands inside your **WSL Ubuntu** terminal:
 
 ```bash
-git clone https://github.com/Shumailaaijaz/phase-3-Todo-AI-Chatbot.git
-cd phase-3-Todo-AI-Chatbot
-```
+# 1. Update system & install basics
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y curl git wget tar ca-certificates gnupg lsb-release
 
-### 2️⃣ Environment Variables
+# 2. Minikube (latest stable)
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
 
-Create a `.env` file:
+# 3. Helm (latest)
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
-```env
-OPENAI_API_KEY=your_api_key_here
-```
+# 4. kubectl-ai
+curl -sSL https://raw.githubusercontent.com/GoogleCloudPlatform/kubectl-ai/main/install.sh | bash
 
-### 3️⃣ Run with Docker
+# 5. kagent
+curl -sSL https://raw.githubusercontent.com/kagent-dev/kagent/main/scripts/install.sh | bash
 
-```bash
-docker-compose up --build
-```
+# 6. Set API keys (very important!)
+export OPENAI_API_KEY=sk-........................................
+# Optional: export GROK_API_KEY=... or GEMINI_API_KEY=...
+Docker Desktop must be installed and running on Windows (not inside WSL).
+Enable WSL integration in Docker Desktop → Settings → Resources → WSL Integration → Enable your Ubuntu distro.
+Getting Started – Step by Step
 
-OR without Docker:
+Start local Kubernetes clusterBashminikube start --driver=docker --cpus=4 --memory=8192
+# Recommended: 4 vCPUs + 8GB RAM for smooth experience
+Enable useful addons (optional but helpful)Bashminikube addons enable ingress
+minikube addons enable metrics-server
+Build Docker images (using Gordon if available)Bash# With Gordon (AI-assisted)
+docker ai "build a multi-stage Docker image for a Next.js frontend in ./frontend"
+docker ai "build FastAPI backend image with uvicorn from ./backend"
 
-```bash
-uvicorn app.main:app --reload
-```
+# Or standard way
+cd frontend && docker build -t todo-frontend:latest .
+cd ../backend && docker build -t todo-backend:latest .
+Load images into MinikubeBashminikube image load todo-frontend:latest
+minikube image load todo-backend:latest
+Deploy with HelmBash# If you have a Helm chart already
+helm install todo-chatbot ./helm-chart/todo-chatbot \
+  --set image.frontend.repository=todo-frontend \
+  --set image.backend.repository=todo-backend \
+  --set env.openaiApiKey=${OPENAI_API_KEY}Or use AI to generate/apply:Bashkubectl-ai "deploy a helm chart for todo chatbot frontend and backend with 1 replica each"
+Access the applicationBashminikube service todo-chatbot-frontend --url
+# or
+minikube tunnel   # for ingress
+Use AI tools to manageBash# Examples
+kubectl-ai "scale the todo-backend deployment to 2 replicas"
+kagent "analyze why pods might be crashing"
+kagent "summarize cluster health and resource usage"
 
----
+Project Structure (suggested)
+textproject-root/
+├── frontend/               # Next.js app + ChatKit
+├── backend/                # FastAPI + MCP + Agent logic
+├── helm-chart/             # Helm charts for deployment
+│   └── todo-chatbot/
+│       ├── Chart.yaml
+│       ├── values.yaml
+│       └── templates/
+├── phase-iv/               # This README + docs
+└── scripts/
+    └── setup-minikube.sh
+Useful Commands Cheat Sheet
+Bash# Cluster management
+minikube start --driver=docker
+minikube stop
+minikube delete   # nuclear option - start fresh
 
-## 🧪 Evaluation Notes (For Judges)
+# Logs & debug
+kubectl logs -f deployment/todo-backend
+kubectl describe pod <pod-name>
 
-* This repository **only contains Phase 3 work**
-* Earlier phase commits are intentionally excluded
-* AI chatbot functionality is the **core evaluation focus**
-* Designed with scalability and future phases in mind
+# AI helpers
+kubectl-ai "show me all pods in the todo namespace"
+kagent "optimize resource requests and limits"
+Teardown
+Bashhelm uninstall todo-chatbot
+minikube delete
+Troubleshooting
 
----
+Docker not found in WSL → Make sure Docker Desktop is running on Windows and WSL integration is enabled.
+Minikube driver error → Use --driver=docker explicitly.
+Gordon not available → Use normal docker build commands.
+kubectl-ai / kagent errors → Check OPENAI_API_KEY is exported correctly.
 
-## 🔮 Next Phases (Planned)
+Next Phase Ideas
 
-* Phase 4: Multi-user collaboration & auth
-* Phase 5: Analytics, memory & personalization
+Phase V: Cloud deployment (GKE / EKS / AKS)
+GitHub Actions + ArgoCD for GitOps
+Monitoring with Prometheus + Grafana
+Real-time updates with WebSockets
 
----
 
-## 👩‍💻 Author
-
-**Shumaila Aijaz**
-Hackathon Participant | AI & Backend Developer
-
----
-
-✅ *Thank you for reviewing Phase 3 of the Todo Evolution Project.*
-"# phase-4-L-K-D" 
+Made with ❤️ in Karachi, Pakistan
+Shumaila – February 2026
