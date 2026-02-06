@@ -1,8 +1,7 @@
 # Phase IV – Local Kubernetes Deployment  
 **Cloud-Native Todo AI Chatbot on Minikube**
 
-![Phase IV Thumbnail](https://via.placeholder.com/1200x630/1e293b/60a5fa?text=Phase+IV+-+Kubernetes+Local+Deployment)  
-*(Replace with actual screenshot or generated thumbnail from demo video)*
+https://youtube.com/shorts/rTgpD4lLWNk?si=Ox4Lz8p2XwoMzoTK
 
 ## Project Overview
 
@@ -142,3 +141,4 @@ Real-time updates with WebSockets
 
 Made with ❤️ in Karachi, Pakistan
 Shumaila – February 2026
+
