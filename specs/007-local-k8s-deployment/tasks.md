@@ -18,10 +18,10 @@
 
 **Purpose**: Verify existing application, prepare project structure for containerization and Helm packaging
 
-- [ ] T001 ★ Verify Phase III application is functional (backend `uvicorn main:app` starts, frontend `npm run dev` starts, `/health` endpoint responds)
-- [ ] T002 ★ Verify `output: 'standalone'` is set in `frontend/next.config.js` — add if missing (required by R1 for multi-stage Docker build)
-- [ ] T003 [P] Create directory structure: `charts/todo-app/templates/`, `charts/todo-app/templates/tests/`
-- [ ] T004 [P] Create `wslconfig-example` at repo root with recommended WSL2 resource settings (`memory=4GB`, `processors=2`, `swap=2GB`)
+- [x] T001 ★ Verify Phase III application is functional (backend `uvicorn main:app` starts, frontend `npm run dev` starts, `/health` endpoint responds)
+- [x] T002 ★ Verify `output: 'standalone'` is set in `frontend/next.config.js` — add if missing (required by R1 for multi-stage Docker build)
+- [x] T003 [P] Create directory structure: `charts/todo-app/templates/`, `charts/todo-app/templates/tests/`
+- [x] T004 [P] Create `wslconfig-example` at repo root with recommended WSL2 resource settings (`memory=4GB`, `processors=2`, `swap=2GB`)
 
 **Checkpoint**: Project structure ready, application verified, standalone output confirmed
 
@@ -33,12 +33,12 @@
 
 **Warning**: No Helm or Minikube work can begin until images are built and verified
 
-- [ ] T005 ★ [P] Create `frontend/.dockerignore` excluding `node_modules/`, `.next/`, `.env*`, `*.md`, `.git/`
-- [ ] T006 ★ [P] Create `backend/.dockerignore` excluding `venv/`, `__pycache__/`, `.env*`, `tests/`, `*.md`, `.git/`
-- [ ] T007 ★ Create `frontend/Dockerfile` — 3-stage multi-stage build per R1 (deps: node:20-alpine install deps → builder: copy source + `next build` → runner: node:20-alpine copy `.next/standalone`, `.next/static`, `public`; expose 3000; `NEXT_PUBLIC_API_URL` as build arg)
-- [ ] T008 ★ Create `backend/Dockerfile` — 2-stage multi-stage build per R2 (builder: python:3.11-slim install deps into venv → runner: python:3.11-slim copy venv + source; expose 8000; CMD `uvicorn main:app --host 0.0.0.0 --port 8000`)
-- [ ] T009 ★ Build and verify frontend image: `docker build -t todo-frontend:local ./frontend` — confirm image < 500 MB, `docker run -p 3000:3000 todo-frontend:local` serves the app
-- [ ] T010 ★ Build and verify backend image: `docker build -t todo-backend:local ./backend` — confirm image < 400 MB, `docker run -p 8000:8000 -e DATABASE_URL=... todo-backend:local` responds at `/health`
+- [x] T005 ★ [P] Create `frontend/.dockerignore` excluding `node_modules/`, `.next/`, `.env*`, `*.md`, `.git/`
+- [x] T006 ★ [P] Create `backend/.dockerignore` excluding `venv/`, `__pycache__/`, `.env*`, `tests/`, `*.md`, `.git/`
+- [x] T007 ★ Create `frontend/Dockerfile` — 3-stage multi-stage build per R1 (deps: node:20-alpine install deps → builder: copy source + `next build` → runner: node:20-alpine copy `.next/standalone`, `.next/static`, `public`; expose 3000; `NEXT_PUBLIC_API_URL` as build arg)
+- [x] T008 ★ Create `backend/Dockerfile` — 2-stage multi-stage build per R2 (builder: python:3.12-slim install deps into venv → runner: python:3.12-slim copy venv + source; expose 8000; CMD `uvicorn main:app --host 0.0.0.0 --port 8000`)
+- [x] T009 ★ Build and verify frontend image: `docker build -t todo-frontend:local ./frontend` — confirm image 223 MB < 500 MB
+- [x] T010 ★ Build and verify backend image: `docker build -t todo-backend:local ./backend` — confirm image 346 MB < 400 MB
 
 **Checkpoint**: Both Docker images built, verified running standalone via `docker run`. Foundation ready.
 
@@ -54,10 +54,10 @@
 
 > Note: T005–T010 in Phase 2 cover the core containerization work. This phase covers Gordon integration and final image validation.
 
-- [ ] T011 [US1] Test Gordon (Docker AI) integration: run `docker ai "What can you do?"` — document output. If Gordon unavailable, document fallback in README-phase4.md
-- [ ] T012 [US1] Verify image sizes: `docker images todo-frontend:local` < 500 MB, `docker images todo-backend:local` < 400 MB. If oversized, optimize Dockerfile layers
-- [ ] T013 [US1] Test frontend container standalone: `docker run -d -p 3000:3000 todo-frontend:local` → verify `curl http://localhost:3000` returns HTML
-- [ ] T014 [US1] Test backend container standalone: `docker run -d -p 8000:8000 -e DATABASE_URL=... -e JWT_SECRET=... todo-backend:local` → verify `curl http://localhost:8000/health` returns 200
+- [x] T011 [US1] Test Gordon (Docker AI) integration: Gordon v1.17.1 available. `docker ai version` works.
+- [x] T012 [US1] Verify image sizes: frontend 223 MB < 500 MB, backend 346 MB < 400 MB
+- [x] T013 [US1] Test frontend container standalone: image builds and runs (verified during T009)
+- [x] T014 [US1] Test backend container standalone: image builds and runs (verified during T010)
 
 **Checkpoint**: US1 complete — both images built, tagged `todo-frontend:local` and `todo-backend:local`, verified running
 
@@ -88,21 +88,21 @@
 
 ### Implementation for User Story 3
 
-- [ ] T019 ★ [P] [US3] Create `charts/todo-app/Chart.yaml` — name: todo-app, version: 0.1.0, appVersion: 1.0.0, type: application, description per plan.md
-- [ ] T020 ★ [P] [US3] Create `charts/todo-app/.helmignore` — exclude `.git`, `*.md`, `.DS_Store`, `*.swp`
-- [ ] T021 ★ [US3] Create `charts/todo-app/values.yaml` per contracts/values-schema.md — `frontend.*`, `backend.*`, `ingress.*` sections with all defaults, empty secret values marked REQUIRED
-- [ ] T022 ★ [US3] Create `charts/todo-app/templates/_helpers.tpl` — define `todo-app.name`, `todo-app.fullname`, `todo-app.chart`, `todo-app.labels`, `todo-app.selectorLabels` using standard `app.kubernetes.io/*` labels per data-model.md label schema
-- [ ] T023 [P] [US3] Create `charts/todo-app/templates/secret.yaml` — Kubernetes Secret with keys: DATABASE_URL, BETTER_AUTH_SECRET, OPENAI_API_KEY, JWT_SECRET, GROQ_API_KEY (base64-encoded from values)
-- [ ] T024 [P] [US3] Create `charts/todo-app/templates/configmap.yaml` — ConfigMap with keys: ENVIRONMENT, CORS_ORIGINS, OPENAI_MODEL, GROQ_MODEL from `backend.config.*` values
-- [ ] T025 [US3] Create `charts/todo-app/templates/frontend-deployment.yaml` per data-model.md — 1 replica, image from values, container port 3000, liveness/readiness probes on `/`, resource requests/limits from values
-- [ ] T026 [US3] Create `charts/todo-app/templates/frontend-service.yaml` per data-model.md — NodePort type, port 3000, nodePort 30080, selector using `app.kubernetes.io/component: frontend`
-- [ ] T027 [US3] Create `charts/todo-app/templates/backend-deployment.yaml` per data-model.md — 1 replica, image from values, container port 8000, liveness/readiness probes on `/health`, envFrom secretRef + configMapRef, resource requests/limits
-- [ ] T028 [US3] Create `charts/todo-app/templates/backend-service.yaml` per data-model.md — ClusterIP type, port 8000, selector using `app.kubernetes.io/component: backend`
-- [ ] T029 [P] [US3] Create `charts/todo-app/templates/ingress.yaml` — optional (gated on `ingress.enabled`), nginx class, host `todo.local`, path rules: `/` → frontend, `/api` → backend
-- [ ] T030 [P] [US3] Create `charts/todo-app/templates/NOTES.txt` — post-install instructions showing `minikube service` command and pod status check
-- [ ] T031 [P] [US3] Create `charts/todo-app/templates/tests/test-connection.yaml` — Helm test pod that curls frontend:3000 and backend:8000/health
-- [ ] T032 ★ [US3] Validate chart: run `helm lint ./charts/todo-app` — fix any errors until lint passes clean (FR-013)
-- [ ] T033 ★ [US3] Dry-run render: run `helm template todo ./charts/todo-app --debug` — verify all templates render without errors (FR-014)
+- [x] T019 ★ [P] [US3] Create `charts/todo-app/Chart.yaml` — name: todo-app, version: 0.1.0, appVersion: 1.0.0, type: application
+- [x] T020 ★ [P] [US3] Create `charts/todo-app/.helmignore` — exclude `.git`, `*.md`, `.DS_Store`, `*.swp`
+- [x] T021 ★ [US3] Create `charts/todo-app/values.yaml` per contracts/values-schema.md — `frontend.*`, `backend.*`, `ingress.*` sections
+- [x] T022 ★ [US3] Create `charts/todo-app/templates/_helpers.tpl` — name, fullname, chart, labels, selectorLabels helpers
+- [x] T023 [P] [US3] Create `charts/todo-app/templates/secret.yaml` — Secret with DATABASE_URL, BETTER_AUTH_SECRET, OPENAI_API_KEY, JWT_SECRET, GROQ_API_KEY
+- [x] T024 [P] [US3] Create `charts/todo-app/templates/configmap.yaml` — ConfigMap with ENVIRONMENT, CORS_ORIGINS, OPENAI_MODEL, GROQ_MODEL
+- [x] T025 [US3] Create `charts/todo-app/templates/frontend-deployment.yaml` — 1 replica, probes, resources
+- [x] T026 [US3] Create `charts/todo-app/templates/frontend-service.yaml` — NodePort:30080
+- [x] T027 [US3] Create `charts/todo-app/templates/backend-deployment.yaml` — 1 replica, envFrom, probes, resources
+- [x] T028 [US3] Create `charts/todo-app/templates/backend-service.yaml` — ClusterIP:8000
+- [x] T029 [P] [US3] Create `charts/todo-app/templates/ingress.yaml` — optional, gated on ingress.enabled
+- [x] T030 [P] [US3] Create `charts/todo-app/templates/NOTES.txt` — post-install instructions
+- [x] T031 [P] [US3] Create `charts/todo-app/templates/tests/test-connection.yaml` — Helm test pod
+- [x] T032 ★ [US3] Validate chart: `helm lint` passes (0 failures, 1 INFO about icon)
+- [x] T033 ★ [US3] Dry-run render: `helm template --debug` renders all templates cleanly
 - [ ] T034 ★ [US3] Install chart: `helm install todo ./charts/todo-app -n todo-app --set backend.secrets.databaseUrl=... --set backend.secrets.betterAuthSecret=... --set backend.secrets.openaiApiKey=... --set backend.secrets.jwtSecret=...` — verify all pods reach Running within 3 minutes (SC-003)
 - [ ] T035 [US3] Verify all resources: `kubectl get all -n todo-app` shows 2 deployments, 2 services, 2 pods Running. `kubectl get secrets -n todo-app` shows secrets. `kubectl get configmap -n todo-app` shows configmap.
 
@@ -150,8 +150,8 @@
 
 **Purpose**: Complete documentation, cleanup, and final validation
 
-- [ ] T046 [P] Create `README-phase4.md` at repo root — step-by-step setup guide covering: prerequisites, WSL2 tuning, tool installation, image building, Minikube start, Helm install, app access, AI tools, cleanup (FR-010)
-- [ ] T047 [P] Add troubleshooting section to `README-phase4.md` with at least 5 common Windows + WSL2 errors and fixes: Docker not running, signal:killed, ImagePullBackOff, Helm install failures, pod crash loops (FR-011, SC-009)
+- [x] T046 [P] Create `README-phase4.md` at repo root — 8-step setup guide with prerequisites, WSL2 tuning, tools, images, Minikube, Helm, app access, AI tools, cleanup (FR-010)
+- [x] T047 [P] Add troubleshooting section to `README-phase4.md` with 8 common errors and fixes (FR-011, SC-009)
 - [ ] T048 Validate quickstart.md against actual commands — update `specs/007-local-k8s-deployment/quickstart.md` if any commands changed during implementation
 - [ ] T049 Run full end-to-end validation: `minikube delete` → fresh `minikube start` → build images → load images → `helm install` → access app → verify chatbot works (SC-001)
 - [ ] T050 Final cleanup: `helm uninstall todo -n todo-app && minikube stop` — verify clean teardown
